@@ -1,4 +1,22 @@
-FROM serversideup/php:8.4-fpm-nginx AS base
+ARG phpVersion=8.5
+
+FROM serversideup/php:${phpVersion}-fpm-nginx AS base
+
+WORKDIR /var/www/html
+
+USER root
+
+# Install extensions
+RUN install-php-extensions exif gd intl imagick
+
+# Clear cache
+RUN rm -rf /var/cache/apt/*
+
+USER www-data
+
+FROM base AS node
+
+ARG nodeVersion=24
 
 WORKDIR /var/www/html
 
@@ -10,7 +28,7 @@ RUN apt update
 RUN install-php-extensions exif gd intl imagick
 
 # Install Node
-RUN curl -sL https://deb.nodesource.com/setup_22.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_${nodeVersion}.x | bash -
 RUN apt install -y nodejs
 RUN npm install yarn --global
 
@@ -19,7 +37,7 @@ RUN rm -rf /var/cache/apt/*
 
 USER www-data
 
-FROM base as chrome
+FROM node as chrome
 
 USER root
 
