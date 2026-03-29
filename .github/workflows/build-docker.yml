@@ -61,7 +61,9 @@ jobs:
           provenance: false
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
-          build-args: phpVersion=${{matrix.php}}; nodeVersion=${{matrix.node}}
+          build-args: |
+            phpVersion=${{matrix.php}}
+            nodeVersion=${{matrix.node}}
           target: base
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -79,7 +81,9 @@ jobs:
           provenance: false
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
-          build-args: phpVersion=${{matrix.php}}; nodeVersion=${{matrix.node}}
+          build-args: |
+            phpVersion=${{matrix.php}}
+            nodeVersion=${{matrix.node}}
           target: node
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -95,7 +99,9 @@ jobs:
           provenance: false
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
-          build-args: phpVersion=${{matrix.php}}; nodeVersion=${{matrix.node}}
+          build-args: |
+            phpVersion=${{matrix.php}}
+            nodeVersion=${{matrix.node}}
           target: chrome
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
