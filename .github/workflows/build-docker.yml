@@ -7,7 +7,15 @@ name: Build Docker
   workflow_dispatch:
 
 jobs:
-  login:
+  build:
+    strategy:
+      matrix:
+        php: ["8.5","8.4"]
+        node: [24, 22]
+        include:
+          - php: "8.5"
+            node: 24
+            latest: true
     runs-on: ubuntu-latest
 
     steps:
@@ -45,19 +53,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-  build:
-    needs: login
-    strategy:
-      matrix:
-        php: ["8.5","8.4"]
-        node: [24, 22]
-        include:
-          - php: "8.5"
-            node: 24
-            latest: true
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Build base
         uses: docker/build-push-action@v7
         with:
