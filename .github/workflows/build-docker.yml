@@ -92,6 +92,8 @@ jobs:
           tags: |
             curicows/php-laravel:php-${{matrix.php}}-node-${{matrix.node}}
             ghcr.io/curicows/php-laravel:php-${{matrix.php}}-node-${{matrix.node}}
+            ${{ matrix.latest == true && 'curicows/php-laravel:node' || '' }}
+            ${{ matrix.latest == true && 'ghcr.io/curicows/php-laravel:node' || '' }}
 
       - name: Build Chrome
         uses: docker/build-push-action@v7
@@ -110,3 +112,5 @@ jobs:
           tags: |
             curicows/php-laravel:chrome-php-${{matrix.php}}-node-${{matrix.node}}
             ghcr.io/curicows/php-laravel:chrome-php-${{matrix.php}}-node-${{matrix.node}}
+            ${{ matrix.latest == true && 'curicows/php-laravel:chrome' || '' }}
+            ${{ matrix.latest == true && 'ghcr.io/curicows/php-laravel:chrome' || '' }}
