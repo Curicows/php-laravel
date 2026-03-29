@@ -82,7 +82,7 @@ jobs:
           context: .
           provenance: false
           file: Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{matrix.platform}}
           build-args: |
             phpVersion=${{matrix.php}}
             nodeVersion=${{matrix.node}}
@@ -100,7 +100,7 @@ jobs:
           context: .
           provenance: false
           file: Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{matrix.platform}}
           build-args: |
             phpVersion=${{matrix.php}}
             nodeVersion=${{matrix.node}}
