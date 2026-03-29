@@ -4,96 +4,106 @@ name: Build Docker
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
-  docker:
+  login:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
-        id: source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           images: |
             curicows/php-laravel
             ghcr.io/curicows/php-laravel
-            gitea.curicows.com/curicows/php-laravel
           labels: |
             org.opencontainers.image.vendor=Curicows
 
       - name: Setup QEMU
-        id: qemu
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Setup Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Hub login
-        id: login1
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         if: github.event_name != 'pull_request'
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Gitea login
-        id: login2
-        uses: docker/login-action@v3
-        if: github.event_name != 'pull_request'
-        with:
-          registry: gitea.curicows.com
-          username: ${{ secrets.GITEA_USERNAME }}
-          password: ${{ secrets.GITEA_TOKEN }}
-
       - name: Ghcr login
-        id: login3
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         if: github.event_name != 'pull_request'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+  build:
+    needs: login
+    strategy:
+      matrix:
+        php: ["8.5","8.4"]
+        node: [24, 22]
+        include:
+          - php: "8.5"
+            node: 24
+            latest: true
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Build base
-        id: amd64
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           provenance: false
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
+          build-args: phpVersion=${{matrix.php}}; nodeVersion=${{matrix.node}}
           target: base
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
-            curicows/php-laravel:latest
-            ghcr.io/curicows/php-laravel:latest
-            gitea.curicows.com/curicows/php-laravel:latest
+            curicows/php-laravel:php-${{matrix.php}}
+            ghcr.io/curicows/php-laravel:php-${{matrix.php}}
+            ${{ matrix.latest == true && 'curicows/php-laravel:latest' || '' }}
+            ${{ matrix.latest == true && 'ghcr.io/curicows/php-laravel:latest' || '' }}
 
-      - name: Build chrome
-        id: arm64
-        uses: docker/build-push-action@v6
+      - name: Build Node
+        uses: docker/build-push-action@v7
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           provenance: false
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
+          build-args: phpVersion=${{matrix.php}}; nodeVersion=${{matrix.node}}
+          target: node
+          push: ${{ github.event_name != 'pull_request' }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            curicows/php-laravel:php-${{matrix.php}}-node-${{matrix.node}}
+            ghcr.io/curicows/php-laravel:php-${{matrix.php}}-node-${{matrix.node}}
+
+      - name: Build Chrome
+        uses: docker/build-push-action@v7
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          provenance: false
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          build-args: phpVersion=${{matrix.php}}; nodeVersion=${{matrix.node}}
           target: chrome
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
-            curicows/php-laravel:chrome
-            ghcr.io/curicows/php-laravel:chrome
-            gitea.curicows.com/curicows/php-laravel:chrome
+            curicows/php-laravel:chrome-php-${{matrix.php}}-node-${{matrix.node}}
+            ghcr.io/curicows/php-laravel:chrome-php-${{matrix.php}}-node-${{matrix.node}}
