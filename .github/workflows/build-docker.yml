@@ -12,7 +12,6 @@ jobs:
       matrix:
         php: ["8.5", "8.4"]
         node: [24, 22]
-        platform: ["linux/amd64", "linux/arm64"]
         include:
           - php: "8.5"
             node: 24
@@ -62,7 +61,7 @@ jobs:
           context: .
           provenance: false
           file: Dockerfile
-          platforms: ${{matrix.platform}}
+          platforms: linux/amd64,linux/arm64
           build-args: |
             phpVersion=${{matrix.php}}
             nodeVersion=${{matrix.node}}
@@ -82,7 +81,7 @@ jobs:
           context: .
           provenance: false
           file: Dockerfile
-          platforms: ${{matrix.platform}}
+          platforms: linux/amd64,linux/arm64
           build-args: |
             phpVersion=${{matrix.php}}
             nodeVersion=${{matrix.node}}
@@ -102,7 +101,7 @@ jobs:
           context: .
           provenance: false
           file: Dockerfile
-          platforms: ${{matrix.platform}}
+          platforms: linux/amd64,linux/arm64
           build-args: |
             phpVersion=${{matrix.php}}
             nodeVersion=${{matrix.node}}
