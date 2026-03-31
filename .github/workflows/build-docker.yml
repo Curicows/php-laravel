@@ -4,6 +4,9 @@ name: Build Docker
   push:
     branches:
       - master
+    paths-ignore:
+      - README.md
+      - .github/workflows/update-dockerhub-overview.yml
   workflow_dispatch:
 
 jobs:
