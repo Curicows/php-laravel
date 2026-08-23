@@ -6,6 +6,9 @@ WORKDIR /var/www/html
 
 USER root
 
+RUN apt update
+RUN apt install git -y
+
 # Install extensions
 RUN install-php-extensions exif gd intl imagick
 
